@@ -1,35 +1,70 @@
 <?php
     function googlePlaces_menu() {
       $items = array();
-      $items['travel_search'] = array(
-          'title' => 'travel search',
-          'page callback' => 'travel_search',
-          'access callback' => TRUE,
-          'type' => MENU_NORMAL_ITEM,
+      $items['travel_options'] = array(
+      'title' => 'Search Attractions',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('travel_form'),
+      'access callback' => TRUE,
+      'type' => MENU_NORMAL_ITEM,
+      );
+      $items['travel_results'] = array(
+      'title' => 'Results',
+      'page callback' => 'travel_search',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
       );
       return $items;
     }
 
+    function travel_form() {
+      $form['attraction'] = array(
+        '#title' => 'attraction',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the type of attraction you are intereseted in'),
+        '#required' => TRUE,
+      );
+      $form['city'] = array(
+        '#title' => 'city',
+        '#type' => 'textfield',
+        '#description' => t('Please enter a city'),
+      );
+      $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Search',
+      );
+      return $form;
+    }
+
+    function travel_form_submit($form, &$form_state) {
+    $city = $form_state['values']['city'];
+    $attraction = $form_state['values']['attraction'];
+    $_SESSION['city'] = $city;
+    $_SESSION['attraction'] = $attraction;
+
+    $form_state['redirect'] = 'travel_results';
+    }
+
     function travel_search() {
+      $output = '';
+      $rating = '';
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
-      $attraction = 'museums';
-      $city = 'Portland';
+      $attraction = $_SESSION['attraction'];
+      $city = $_SESSION['city'];
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
-      // var_dump($result_array['results']);
 
       for ($i=0; $i < count($result_array['results']); $i++) {
       $address = $result_array['results'][$i]['formatted_address'];
       $name = $result_array['results'][$i]['name'];
       $place_id = $result_array['results'][$i]['place_id'];
-      // $price_level = (string)$result_array['results'][$i]['price_level'];
       $rating = (string)$result_array['results'][$i]['rating'];
 
       $output=$output.<<<EOD
       <h2>$name</h2>
-      <h4>Address: $address</h4>
-      <h4>Rating: $rating</h4>
+      <h4>Address: $address </h4>
+      <h4>Rating: $rating </h4>
 EOD;
 
       }
