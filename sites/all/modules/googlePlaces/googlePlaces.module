@@ -18,6 +18,7 @@
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
       // var_dump($result_array['results']);
+
       for ($i=0; $i < count($result_array['results']); $i++) {
       $address = $result_array['results'][$i]['formatted_address'];
       $name = $result_array['results'][$i]['name'];
@@ -25,13 +26,12 @@
       // $price_level = (string)$result_array['results'][$i]['price_level'];
       $rating = (string)$result_array['results'][$i]['rating'];
 
-      $output=<<<EOD
+      $output=$output.<<<EOD
       <h2>$name</h2>
       <h4>Address: $address</h4>
       <h4>Rating: $rating</h4>
 EOD;
 
-      $output.=$output;
       }
       return $output;
     }
