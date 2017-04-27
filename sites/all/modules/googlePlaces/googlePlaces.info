@@ -1,0 +1,5 @@
+name = googlePlaces
+description = Travel details.
+package = googlePlaces
+core = 7.x
+files[] = googlePlaces.module

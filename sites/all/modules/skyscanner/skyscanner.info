@@ -1,0 +1,5 @@
+name = Skyscanner flights
+description = Display flights.
+package = skyscanner
+core = 7.x
+files[] = skyscanner.module

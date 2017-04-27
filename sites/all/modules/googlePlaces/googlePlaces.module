@@ -1,0 +1,37 @@
+<?php
+    function googlePlaces_menu() {
+      $items = array();
+      $items['travel_search'] = array(
+          'title' => 'travel search',
+          'page callback' => 'travel_search',
+          'access callback' => TRUE,
+          'type' => MENU_NORMAL_ITEM,
+      );
+      return $items;
+    }
+
+    function travel_search() {
+      $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
+      $attraction = 'museums';
+      $city = 'Portland';
+      $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
+      $result_string = file_get_contents($api_call);
+      $result_array = json_decode($result_string, TRUE);
+      // var_dump($result_array['results']);
+      for ($i=0; $i < count($result_array['results']); $i++) {
+      $address = $result_array['results'][$i]['formatted_address'];
+      $name = $result_array['results'][$i]['name'];
+      $place_id = $result_array['results'][$i]['place_id'];
+      // $price_level = (string)$result_array['results'][$i]['price_level'];
+      $rating = (string)$result_array['results'][$i]['rating'];
+
+      $output=<<<EOD
+      <h2>$name</h2>
+      <h4>Address: $address</h4>
+      <h4>Rating: $rating</h4>
+EOD;
+
+      $output.=$output;
+      }
+      return $output;
+    }
