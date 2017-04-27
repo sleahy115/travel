@@ -51,33 +51,41 @@
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
       $attraction = $_SESSION['attraction'];
       if(str_word_count($attraction) > 1) {
-        var_dump("greater than");
         $attraction = preg_replace('/\s+/', '', $attraction);
       }else {
         $attraction = $attraction;
       }
 
       $city = $_SESSION['city'];
+      if(str_word_count($city) > 1) {
+        $city = preg_replace('/\s+/', '', $city);
+      }else {
+        $city = $city;
+      }
+
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
+      var_dump(empty($result_array['results']));
 
-      for ($i=0; $i < count($result_array['results']); $i++) {
-      $address = $result_array['results'][$i]['formatted_address'];
-      $name = $result_array['results'][$i]['name'];
-      $place_id = $result_array['results'][$i]['place_id'];
-      if(empty((string)$result_array['results'][$i]['rating']) === false) {
-          $rating = (string)$result_array['results'][$i]['rating'];
-      }else {
-        $rating = "Sorry no rating";
-      }
-
-      $output=$output.<<<EOD
-      <h2>$name</h2>
-      <h4>Address: $address </h4>
-      <h4>Rating: $rating </h4>
+      if(empty($result_array['results'] === 'false')) {
+        for ($i=0; $i < count($result_array['results']); $i++) {
+        $address = $result_array['results'][$i]['formatted_address'];
+        $name = $result_array['results'][$i]['name'];
+        $place_id = $result_array['results'][$i]['place_id'];
+          if(empty((string)$result_array['results'][$i]['rating']) === false) {
+              $rating = (string)$result_array['results'][$i]['rating'];
+          }else {
+            $rating = "Sorry no rating";
+          }
+        $output=$output.<<<EOD
+        <h2>$name</h2>
+        <h4>Address: $address </h4>
+        <h4>Rating: $rating </h4>
 EOD;
-
+        }
+      }else {
+        $output = "Sorry no results";
       }
       return $output;
     }
