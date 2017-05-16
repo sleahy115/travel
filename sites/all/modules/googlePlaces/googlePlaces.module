@@ -78,11 +78,6 @@
     $form_state['redirect'] = 'travel_results';
     }
 
-    function save_view() {
-      $output = $_SESSION['output'];
-      var_dump($output);
-      return $output;
-    }
 
     function travel_search() {
       $output = '';
@@ -127,17 +122,20 @@
         for ($i=0; $i < count($result_array['results']); $i++) {
         $address = $result_array['results'][$i]['formatted_address'];
         $name = $result_array['results'][$i]['name'];
+        $value = $i;
+        $_SESSION['output'.$i] = $name . $address . $rating;
         $place_id = $result_array['results'][$i]['place_id'];
           if(empty((string)$result_array['results'][$i]['rating']) === false) {
               $rating = (string)$result_array['results'][$i]['rating'];
           }else {
             $rating = "Sorry no rating";
           }
-        $_SESSION['output'] = $name . $address . $rating;  
+        $_SESSION['value'] = $value;  
         $output = $output.<<<EOD
         <h2>$name</h2>
         <h4>Address: $address </h4>
         <h4>Rating: $rating </h4>
+        <h4>Value: $value </h4>
 EOD;
          $checkbox_output = drupal_get_form('checkbox_form');
          $output .= drupal_render($checkbox_output);
@@ -146,5 +144,13 @@ EOD;
       }else {
         $output = "Sorry no results";
       }
+      return $output;
+      var_dump($value);
+    }
+
+    function save_view() {
+      $value = $_SESSION['value'];
+      $output = $_SESSION['output'.$value];
+      var_dump($value);
       return $output;
     }
