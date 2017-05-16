@@ -14,6 +14,12 @@
       'access callback' => TRUE,
       'type' => MENU_CALLBACK,
       );
+      $items['save_results'] = array(
+      'title' => 'My Results',
+      'page callback' => 'save_view',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+      );
       return $items;
     }
 
@@ -41,6 +47,26 @@
       return $form;
     }
 
+    function checkbox_form() {
+      $form['save'] = array(
+        '#title' => '',
+        '#type' => 'checkboxes',
+        '#options' => array(
+          0=>'save',
+        ),
+        '#description' => t('Check to save'),
+      );
+      $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Save',
+      );
+      return $form;
+    }
+
+    function checkbox_form_submit($form, &$form_state) {
+     $form_state['redirect'] = 'save_results';
+    }
+
     function travel_form_submit($form, &$form_state) {
     $city = $form_state['values']['city'];
     $attraction = $form_state['values']['attraction'];
@@ -50,6 +76,12 @@
     $_SESSION['state'] = $state;
 
     $form_state['redirect'] = 'travel_results';
+    }
+
+    function save_view() {
+      $output = $_SESSION['output'];
+      var_dump($output);
+      return $output;
     }
 
     function travel_search() {
@@ -85,7 +117,7 @@
       $last_updated = $weather_array['current_observation']['observation_time'];
       $city_state = $weather_array['current_observation']['display_location']['full'];
 
-      $output = "The weather for" . $city_state . " as of " . $local_time . " is " . $current_condition . ". The tempature is " . $temp_f . " farenheight, and " . $temp_c . " celcius. This report was " . $last_updated . ".";
+      $output = "<h2>The weather for " . $city_state . "</h2><br> as of " . $local_time . " is " . $current_condition . ". The temperature is " . $temp_f . " fahrenheit , and " . $temp_c . " celsius. This report was " . $last_updated . ".";
 
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
@@ -101,11 +133,15 @@
           }else {
             $rating = "Sorry no rating";
           }
+        $_SESSION['output'] = $name . $address . $rating;  
         $output = $output.<<<EOD
         <h2>$name</h2>
         <h4>Address: $address </h4>
         <h4>Rating: $rating </h4>
 EOD;
+         $checkbox_output = drupal_get_form('checkbox_form');
+         $output .= drupal_render($checkbox_output);
+
         }
       }else {
         $output = "Sorry no results";
