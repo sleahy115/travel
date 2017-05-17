@@ -96,7 +96,7 @@
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
-      var_dump($result_array);
+
       if(empty($result_array['results'] === 'false')) {
         for ($i=0; $i < count($result_array['results']); $i++) {
         $address = $result_array['results'][$i]['formatted_address'];

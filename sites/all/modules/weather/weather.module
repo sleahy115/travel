@@ -38,7 +38,6 @@ function weather_form() {
 
 function element_validate_abbv($element) {
   if(strlen($element['#value']) > 2) {
-    var_dump($element);
          form_error($element, t('Please enter the two letter abbreviation for the state'));
      }
 }
@@ -67,15 +66,23 @@ function weather_check() {
   $result = file_get_contents($weather);
   $weather_array = json_decode($result, true);
 
-  $local_time = $weather_array['current_observation']['local_time_rfc822'];
-  $humidity = $weather_array['current_observation']['relative_humidity'];
-  $temp_c = $weather_array['current_observation']['temp_c'];
-  $temp_f = $weather_array['current_observation']['temp_f'];
-  $current_condition = $weather_array['current_observation']['weather'];
-  $last_updated = $weather_array['current_observation']['observation_time'];
-  $city_state = $weather_array['current_observation']['display_location']['full'];
-
-  $output = "<h2>The weather for " . $city_state . "</h2><br> as of " . $local_time . " is " . $current_condition . ". The temperature is " . $temp_f . " fahrenheit , and " . $temp_c . " celsius. This report was " . $last_updated . ".";
-
+  if(empty($weather_array['current_observation'])) {
+      $output = "Sorry no results";
+    } else {
+    $local_time = $weather_array['current_observation']['local_time_rfc822'];
+    $humidity = $weather_array['current_observation']['relative_humidity'];
+    $temp_c = $weather_array['current_observation']['temp_c'];
+    $temp_f = $weather_array['current_observation']['temp_f'];
+    $current_condition = $weather_array['current_observation']['weather'];
+    $last_updated = $weather_array['current_observation']['observation_time'];
+    $city_state = $weather_array['current_observation']['display_location']['full'];
+    $icon =  $weather_array['current_observation']['icon'];
+    $output = <<<EOD
+    <h2>Current conditions in $city_state</h2>
+    <h3>$current_condition</h3><img src ="sites/all/modules/weather/images/$icon.gif" alt="$icon">
+    <h3>The temperature is $temp_f f /$temp_c c</h3>
+    <h3>$last_updated</h3>  
+EOD;
+  }
   return $output;
 }
