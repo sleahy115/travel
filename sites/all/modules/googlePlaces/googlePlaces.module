@@ -35,15 +35,11 @@
         '#type' => 'textfield',
         '#description' => t('Please enter a city'),
       );
-      $form['state'] = array(
-        '#title' => 'state',
-        '#type' => 'textfield',
-        '#description' => t('Please enter a state'),
-      );
       $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Search',
       );
+
       return $form;
     }
 
@@ -52,7 +48,7 @@
         '#title' => '',
         '#type' => 'checkboxes',
         '#options' => array(
-          0=>'save',
+          1=>'save',
         ),
         '#description' => t('Check to save'),
       );
@@ -64,16 +60,16 @@
     }
 
     function checkbox_form_submit($form, &$form_state) {
+     $id = $form_state['values']['save'];
+     $_SESSION['id'] = $id;
      $form_state['redirect'] = 'save_results';
     }
 
     function travel_form_submit($form, &$form_state) {
     $city = $form_state['values']['city'];
     $attraction = $form_state['values']['attraction'];
-    $state = $form_state['values']['state'];
     $_SESSION['city'] = $city;
     $_SESSION['attraction'] = $attraction;
-    $_SESSION['state'] = $state;
 
     $form_state['redirect'] = 'travel_results';
     }
@@ -85,7 +81,6 @@
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
       $weather_key = '28eb4ab328f37f10';
       $attraction = $_SESSION['attraction'];
-      $state = $_SESSION['state'];
 
       if(str_word_count($attraction) > 1) {
         $attraction = preg_replace('/\s+/', '', $attraction);
@@ -99,25 +94,10 @@
       }else {
         $city = $city;
       }
-
-      $weather = 'http://api.wunderground.com/api/28eb4ab328f37f10/conditions/q/' . $state . '/' . $city . '.json';
-      $result = file_get_contents($weather);
-      $weather_array = json_decode($result, true);
-
-      $local_time = $weather_array['current_observation']['local_time_rfc822'];
-      $humidity = $weather_array['current_observation']['relative_humidity'];
-      $temp_c = $weather_array['current_observation']['temp_c'];
-      $temp_f = $weather_array['current_observation']['temp_f'];
-      $current_condition = $weather_array['current_observation']['weather'];
-      $last_updated = $weather_array['current_observation']['observation_time'];
-      $city_state = $weather_array['current_observation']['display_location']['full'];
-
-      $output = "<h2>The weather for " . $city_state . "</h2><br> as of " . $local_time . " is " . $current_condition . ". The temperature is " . $temp_f . " fahrenheit , and " . $temp_c . " celsius. This report was " . $last_updated . ".";
-
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
-
+      var_dump($result_array);
       if(empty($result_array['results'] === 'false')) {
         for ($i=0; $i < count($result_array['results']); $i++) {
         $address = $result_array['results'][$i]['formatted_address'];
@@ -130,7 +110,7 @@
           }else {
             $rating = "Sorry no rating";
           }
-        $_SESSION['value'] = $value;  
+        $_SESSION['value'] = $value;
         $output = $output.<<<EOD
         <h2>$name</h2>
         <h4>Address: $address </h4>
@@ -145,12 +125,19 @@ EOD;
         $output = "Sorry no results";
       }
       return $output;
-      var_dump($value);
     }
 
     function save_view() {
+      $id = $_SESSION['id'];
+      var_dump('id');
+      var_dump($id);
       $value = $_SESSION['value'];
-      $output = $_SESSION['output'.$value];
+      var_dump('value');
       var_dump($value);
+      if ($id[1] === "1"); {
+        var_dump("if triggered");
+        $output = $_SESSION['output'.$value];
+      }
+
       return $output;
     }

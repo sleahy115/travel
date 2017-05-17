@@ -1,0 +1,55 @@
+<?php
+function weather_menu() {
+  $items = array();
+  $items['weather'] = array(
+    'title' => 'Check weather',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('weather_form'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    );
+    return $items;
+}
+
+function weather_form() {
+  $form['city'] = array(
+    '#title' => 'city',
+    '#type' => 'textfield',
+    '#description' => t('Please enter a city'),
+  );
+  $form['state'] = array(
+    '#title' => 'state',
+    '#type' => 'textfield',
+    '#description' => t('Please enter a state'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Check weather',
+  );
+  return $form;
+}
+
+function weather_form_submit($form, &$form_state) {
+  $city = $form_state['values']['city'];
+  $state = $form_state['values']['state'];
+  $_SESSION['city'] = $city;
+  $_SESSION['state'] = $state;
+
+  $form_state['redirect'] = 'weather_results';
+}
+
+function weather_check() {
+  $weather = 'http://api.wunderground.com/api/28eb4ab328f37f10/conditions/q/' . $state . '/' . $city . '.json';
+  $result = file_get_contents($weather);
+  $weather_array = json_decode($result, true);
+
+  $local_time = $weather_array['current_observation']['local_time_rfc822'];
+  $humidity = $weather_array['current_observation']['relative_humidity'];
+  $temp_c = $weather_array['current_observation']['temp_c'];
+  $temp_f = $weather_array['current_observation']['temp_f'];
+  $current_condition = $weather_array['current_observation']['weather'];
+  $last_updated = $weather_array['current_observation']['observation_time'];
+  $city_state = $weather_array['current_observation']['display_location']['full'];
+
+  $output = "<h2>The weather for " . $city_state . "</h2><br> as of " . $local_time . " is " . $current_condition . ". The temperature is " . $temp_f . " fahrenheit , and " . $temp_c . " celsius. This report was " . $last_updated . ".";
+}

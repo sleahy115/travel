@@ -1,0 +1,5 @@
+name = weather
+description = weather details.
+package = weather
+core = 7.x
+files[] = weather.module
