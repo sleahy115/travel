@@ -79,7 +79,6 @@
       $output = '';
       $rating = '';
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
-      $weather_key = '28eb4ab328f37f10';
       $attraction = $_SESSION['attraction'];
 
       if(str_word_count($attraction) > 1) {

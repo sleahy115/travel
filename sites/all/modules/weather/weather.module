@@ -2,11 +2,17 @@
 function weather_menu() {
   $items = array();
   $items['weather'] = array(
-    'title' => 'Check weather',
+    'title' => 'Check weather- weather condidions only available for the US currently',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('weather_form'),
     'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,
+    );
+    $items['weather_results'] = array(
+    'title' => 'Results',
+    'page callback' => 'weather_check',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
     );
     return $items;
 }
@@ -20,6 +26,7 @@ function weather_form() {
   $form['state'] = array(
     '#title' => 'state',
     '#type' => 'textfield',
+    '#element_validate' => array('element_validate_abbv'),
     '#description' => t('Please enter a state'),
   );
   $form['submit'] = array(
@@ -27,6 +34,13 @@ function weather_form() {
     '#value' => 'Check weather',
   );
   return $form;
+}
+
+function element_validate_abbv($element) {
+  if(strlen($element['#value']) > 2) {
+    var_dump($element);
+         form_error($element, t('Please enter the two letter abbreviation for the state'));
+     }
 }
 
 function weather_form_submit($form, &$form_state) {
@@ -39,7 +53,17 @@ function weather_form_submit($form, &$form_state) {
 }
 
 function weather_check() {
-  $weather = 'http://api.wunderground.com/api/28eb4ab328f37f10/conditions/q/' . $state . '/' . $city . '.json';
+  $city = $_SESSION['city'];
+  $state = $_SESSION['state'];
+  $weather_key = '28eb4ab328f37f10';
+
+  if(str_word_count($city) > 1) {
+    $city = str_replace(' ', '_', $city);
+  }else {
+    $city = $city;
+  }
+
+  $weather = 'http://api.wunderground.com/api/'.$weather_key.'/conditions/q/' . $state . '/' . $city . '.json';
   $result = file_get_contents($weather);
   $weather_array = json_decode($result, true);
 
@@ -52,4 +76,6 @@ function weather_check() {
   $city_state = $weather_array['current_observation']['display_location']['full'];
 
   $output = "<h2>The weather for " . $city_state . "</h2><br> as of " . $local_time . " is " . $current_condition . ". The temperature is " . $temp_f . " fahrenheit , and " . $temp_c . " celsius. This report was " . $last_updated . ".";
+
+  return $output;
 }
