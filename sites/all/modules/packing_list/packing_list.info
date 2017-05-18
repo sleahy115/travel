@@ -1,0 +1,5 @@
+name = packing list
+description = packing checklist.
+package = packing list
+core = 7.x
+files[] = packing_list.module

@@ -1,0 +1,54 @@
+<?php
+    function packing_list_menu() {
+      $items = array();
+
+      $items['packing_list'] = array(
+      'title' => 'Packing List',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('packing_form'),
+      'access callback' => TRUE,
+      'type' => MENU_NORMAL_ITEM,
+      );
+      return $items;
+    }
+
+    function packing_form() {
+      $form['Toiletries'] = array(
+        '#title' => 'Toiletries',
+        '#type' => 'checkboxes',
+        '#options' => array(
+          1=> 'shampoo',
+          2=> 'conditioner',
+          3=> 'deodorant',
+          4=> 'toothpaste/toothbrush',
+        ),
+      );
+      $form['electronics'] = array(
+        '#title' => 'electronics',
+        '#type' => 'checkboxes',
+        '#options' => array(
+          1=> 'camera',
+          2=> 'phone',
+          3=> 'tablet',
+          4=> 'laptop/toothbrush',
+          5=> 'chargers',
+          6=> 'adapator',
+        ),
+        $form['clothes'] = array(
+          '#title' => 'clothes',
+          '#type' => 'checkboxes',
+          '#options' => array(
+            1=> 'shirts',
+            2=> 'pants/shorts',
+            3=> 'dresses',
+            4=> 'underwear',
+            5=> 'shoes',
+            6=> 'jacket/sweater',
+          ),
+      );
+      $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Save',
+      );
+      return $form;
+    }

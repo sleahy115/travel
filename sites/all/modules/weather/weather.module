@@ -2,7 +2,7 @@
 function weather_menu() {
   $items = array();
   $items['weather'] = array(
-    'title' => 'Check weather- weather condidions only available for the US currently',
+    'title' => 'Check weather',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('weather_form'),
     'access callback' => TRUE,
@@ -19,12 +19,12 @@ function weather_menu() {
 
 function weather_form() {
   $form['city'] = array(
-    '#title' => 'city',
+    '#title' => 'City',
     '#type' => 'textfield',
     '#description' => t('Please enter a city'),
   );
   $form['state'] = array(
-    '#title' => 'state',
+    '#title' => 'State',
     '#type' => 'textfield',
     '#element_validate' => array('element_validate_abbv'),
     '#description' => t('Please enter a state'),
@@ -81,7 +81,7 @@ function weather_check() {
     <h2>Current conditions in $city_state</h2>
     <h3>$current_condition</h3><img src ="sites/all/modules/weather/images/$icon.gif" alt="$icon">
     <h3>The temperature is $temp_f f /$temp_c c</h3>
-    <h3>$last_updated</h3>  
+    <h3>$last_updated</h3>
 EOD;
   }
   return $output;

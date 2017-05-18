@@ -96,32 +96,30 @@
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
-
-      if(empty($result_array['results'] === 'false')) {
+      // var_dump(empty($result_array['results']));
+      if(empty($result_array['results'])) {
+        $output = "Sorry no results";
+      } else {
         for ($i=0; $i < count($result_array['results']); $i++) {
         $address = $result_array['results'][$i]['formatted_address'];
         $name = $result_array['results'][$i]['name'];
         $value = $i;
         $_SESSION['output'.$i] = $name . $address . $rating;
         $place_id = $result_array['results'][$i]['place_id'];
-          if(empty((string)$result_array['results'][$i]['rating']) === false) {
-              $rating = (string)$result_array['results'][$i]['rating'];
-          }else {
+          if(empty($result_array['results'][$i]['rating'])) {
             $rating = "Sorry no rating";
+          }else {
+            $rating = (string)$result_array['results'][$i]['rating'];
           }
         $_SESSION['value'] = $value;
         $output = $output.<<<EOD
         <h2>$name</h2>
         <h4>Address: $address </h4>
         <h4>Rating: $rating </h4>
-        <h4>Value: $value </h4>
 EOD;
          $checkbox_output = drupal_get_form('checkbox_form');
          $output .= drupal_render($checkbox_output);
-
         }
-      }else {
-        $output = "Sorry no results";
       }
       return $output;
     }
