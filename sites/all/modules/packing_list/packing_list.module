@@ -91,22 +91,21 @@ function checked_list() {
   $clothes = $_SESSION['clothes'];
   $documents = $_SESSION['documents'];
   $electronics = $_SESSION['electronics'];
+  $checked_output = <<<EOD
+  <h2>Packed</h2>
+  EOD;
+
   foreach ($toiletries as $item => $value) {
     $checked = array();
-    array_push($checked, $value);
-    var_dump($checked);
+      if(gettype($value) === "string") {
+        array_push($checked, $value);
+      }
+    for($i=0; $i< count($checked); $i++) {
+      if($checked[$i] !== "null") {
+          $output .= $checked[$i];
+          var_dump($output);
+      }
+    }
   }
-    return $checked;
-
-  // for($i=0; $i < count($toiletries); $i++) {
-  //   var_dump("toiletries array");
-  //   var_dump($toiletries);
-  //   $checked = array();
-  //   if(gettype($toiletries[$i]) === "string") {
-  //     var_dump("string condtion met");
-  //     array_push($checked, $toiletries[$i]);
-  //     var_dump($checked);
-  //     return $checked;
-  //   }
-  // }
+    return $output;
 }
