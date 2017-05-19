@@ -9,42 +9,62 @@
       'access callback' => TRUE,
       'type' => MENU_NORMAL_ITEM,
       );
+      $items['packing_list_results'] = array(
+      'title' => 'Results',
+      'page callback' => 'checked_list',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+      );
       return $items;
     }
 
     function packing_form() {
-      $form['Toiletries'] = array(
-        '#title' => 'Toiletries',
+      $toiletries_values = array(
+         'shampoo' => t('shampoo'),
+         'conditioner'=> t('conditioner'),
+         'deodorant'=> t('deodorant'),
+         'toothpaste' => t('toothpaste/toothbrush'),
+      );
+      $electronics_values = array(
+        'camera' => t('camera'),
+        'phone' => t('phone'),
+        'tablet' => t('tablet'),
+        'laptop'=> t('laptop'),
+        'chargers' => t('chargers'),
+        'adapator' => t('adapator'),
+     );
+     $clothes_values = array(
+        'shirts' => t('shirts'),
+        'pants/shorts' => t('pants/shorts'),
+        'dresses' => t('dresses'),
+        'underwear'=> t('underwear'),
+        'shoes' => t('shoes'),
+        'jacket/sweater' => t('jacket/sweater'),
+     );
+     $documents_values = array(
+          'ID/passport' => t('ID/passport'),
+          'copies of ID' => t('copies of ID'),
+          'visa' => t('visa'),
+     );
+      $form['toiletries'] = array(
+        '#title' => 'toiletries',
         '#type' => 'checkboxes',
-        '#options' => array(
-          1=> 'shampoo',
-          2=> 'conditioner',
-          3=> 'deodorant',
-          4=> 'toothpaste/toothbrush',
-        ),
+        '#options' => $toiletries_values,
       );
       $form['electronics'] = array(
         '#title' => 'electronics',
         '#type' => 'checkboxes',
-        '#options' => array(
-          1=> 'camera',
-          2=> 'phone',
-          3=> 'tablet',
-          4=> 'laptop/toothbrush',
-          5=> 'chargers',
-          6=> 'adapator',
-        ),
+        '#options' => $electronics_values,
+      );
         $form['clothes'] = array(
           '#title' => 'clothes',
           '#type' => 'checkboxes',
-          '#options' => array(
-            1=> 'shirts',
-            2=> 'pants/shorts',
-            3=> 'dresses',
-            4=> 'underwear',
-            5=> 'shoes',
-            6=> 'jacket/sweater',
-          ),
+          '#options' => $clothes_values,
+        );
+      $form['documents'] = array(
+        '#title' => 'documents',
+        '#type' => 'checkboxes',
+        '#options' => $documents_values,
       );
       $form['submit'] = array(
         '#type' => 'submit',
@@ -52,3 +72,32 @@
       );
       return $form;
     }
+
+function packing_form_submit($form, &$form_state) {
+    $toiletries = $form_state['values']['toiletries'];
+    $clothes = $form_state['values']['clothes'];
+    $documents = $form_state['values']['documents'];
+    $electronics = $form_state['values']['electronics'];
+    $_SESSION['toiletries'] = $toiletries;
+    $_SESSION['clothes'] = $clothes;
+    $_SESSION['documents'] = $documents;
+    $_SESSION['electronics'] = $electronics;
+
+    $form_state['redirect'] = 'packing_list_results';
+  }
+
+function checked_list() {
+  $toiletries = $_SESSION['toiletries'];
+  var_dump($toiletries);
+  $clothes = $_SESSION['clothes'];
+  $documents = $_SESSION['documents'];
+  $electronics = $_SESSION['electronics'];
+
+  for($i=0; $i < count($toiletries); $i++) {
+    $checked = array();
+    if(gettype($toiletries[$i]) === "string") {
+      array_push($checked, $toiletries[$i]);
+      return $checked;
+    }
+  }
+}

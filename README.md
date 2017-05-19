@@ -14,8 +14,8 @@
 ## Setup/Installation Requirements
 
   * Follow the link to the Git repository for this project. [Github]https://github.com/sleahy115/travel.git
-  * In the terminal run `$ git clone link-to-repo-here`
-  * In the terminal run `$ cd project-name`
+  * In the terminal run `$ git clone https://github.com/sleahy115/travel.git`
+  * In the terminal run `$ cd travel`
   * Open MAMP and and click on preferences.
   * In the preferences menu navigate to webserver and set your document root to project-folder and click okay.
   * Click start server in MAMP homescreen.
