@@ -87,25 +87,57 @@ function packing_form_submit($form, &$form_state) {
   }
 
 function checked_list() {
+  $checked = array();
+  $unchecked = array();
   $toiletries = $_SESSION['toiletries'];
   $clothes = $_SESSION['clothes'];
   $documents = $_SESSION['documents'];
   $electronics = $_SESSION['electronics'];
   $checked_output = <<<EOD
-  <h2>Packed</h2>
-  EOD;
-
+  <h2>Packed:</h2>
+EOD;
+  $unchecked_output = <<<EOD
+  <h2>To be packed:</h2>
+EOD;
   foreach ($toiletries as $item => $value) {
-    $checked = array();
       if(gettype($value) === "string") {
         array_push($checked, $value);
+      } else {
+        array_push($unchecked, $item);
       }
+  }
+  foreach ($clothes as $item => $value) {
+      if(gettype($value) === "string") {
+          array_push($checked, $value);
+      } else {
+        array_push($unchecked, $item);
+      }
+  }
+  foreach ($documents as $item => $value) {
+      if(gettype($value) === "string") {
+          array_push($checked, $value);
+      } else {
+        array_push($unchecked, $item);
+      }
+  }
+  foreach ($electronics as $item => $value) {
+      if(gettype($value) === "string") {
+          array_push($checked, $value);
+      } else {
+        array_push($unchecked, $item);
+      }
+  }
     for($i=0; $i< count($checked); $i++) {
       if($checked[$i] !== "null") {
-          $output .= $checked[$i];
-          var_dump($output);
+          $checked_output .= <<<EOD
+          <li>$checked[$i]</li>
+EOD;
+          $unchecked_output .= <<<EOD
+          <li>$unchecked[$i]</li>
+EOD;
+
       }
     }
-  }
-    return $output;
+
+    return $checked_output . $unchecked_output;
 }
