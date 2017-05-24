@@ -10,7 +10,6 @@
       'type' => MENU_NORMAL_ITEM,
       );
       $items['packing_list_results'] = array(
-      'title' => 'Results',
       'page callback' => 'checked_list',
       'access callback' => TRUE,
       'type' => MENU_CALLBACK,
@@ -66,6 +65,11 @@
         '#type' => 'checkboxes',
         '#options' => $documents_values,
       );
+      $form['additional'] = array(
+        '#title' => 'additional',
+        '#type' => 'textfield',
+        '#description' => t('Enter any additional items to pack')
+      );
       $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Save',
@@ -78,10 +82,12 @@ function packing_form_submit($form, &$form_state) {
     $clothes = $form_state['values']['clothes'];
     $documents = $form_state['values']['documents'];
     $electronics = $form_state['values']['electronics'];
+    $additional = $form_state['values']['additional'];
     $_SESSION['toiletries'] = $toiletries;
     $_SESSION['clothes'] = $clothes;
     $_SESSION['documents'] = $documents;
     $_SESSION['electronics'] = $electronics;
+    $_SESSION['additional'] = $additional;
 
     $form_state['redirect'] = 'packing_list_results';
   }
@@ -93,11 +99,16 @@ function checked_list() {
   $clothes = $_SESSION['clothes'];
   $documents = $_SESSION['documents'];
   $electronics = $_SESSION['electronics'];
+  $additional = $_SESSION['additional'];
   $checked_output = <<<EOD
+  <div class="packed">
   <h2>Packed:</h2>
+  </div>
 EOD;
   $unchecked_output = <<<EOD
+  <div class="notpacked">
   <h2>To be packed:</h2>
+  </div>
 EOD;
   foreach ($toiletries as $item => $value) {
       if(gettype($value) === "string") {
@@ -126,6 +137,9 @@ EOD;
       } else {
         array_push($unchecked, $item);
       }
+  }
+  if($additional !== ""){
+    array_push($checked, $additional);
   }
     for($i=0; $i< count($checked); $i++) {
       if($checked[$i] !== "null") {

@@ -1,0 +1,77 @@
+
+#navbar-collapse {
+  color: #633107;
+  background-color: #8fe8b3;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+#navbar-collapse a {
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+}
+.name a, .navbar-brand a {
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+  font-size: 25px;
+}
+.region-sidebar-first {
+  background-color: #ede397;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+.region-sidebar-first a {
+  background-color: #ede397;
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+.lead {
+  margin-bottom: 10px;
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+h1 {
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+h2 {
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+p {
+  font-family: serif;
+  color: #633107;
+}
+
+#block-system-main {
+  column-count: 2;
+}
+
+.packed {
+}
+
+.notpacked {
+  padding-top: 5px;
+}
+
+#edit-submit {
+  background-color: #ede397;
+  color: #633107;
+  font-family: serif;
+  font-variant: small-caps;
+}
+
+html {
+  background-color: #8fe8b3;
+}
