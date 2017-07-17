@@ -25,15 +25,52 @@
 
     function travel_form() {
       $form['attraction'] = array(
-        '#title' => 'attraction',
+        '#title' => 'What do you like to do for fun?',
         '#type' => 'textfield',
-        '#description' => t('Please enter the type of attraction you are intereseted in'),
+        '#description' => t('What do you like to do for fun?'),
         '#required' => TRUE,
       );
       $form['city'] = array(
-        '#title' => 'city',
+        '#title' => 'What city are you visting?',
         '#type' => 'textfield',
         '#description' => t('Please enter a city'),
+      );
+      $form['active'] = array(
+        '#title' => 'How active do you like to be on vacation?',
+        '#type' => 'select',
+        '#options' => array(
+            'relaxed' => 'I like a leisurely trip',
+            'active' => 'I like to see everything I can',
+            'middle' => 'I like a mix of realxing and seeing what I can'
+        ),
+        '#description' => t('How active do you like to be on vacation?'),
+      );
+      $form['days'] = array(
+        '#title' => 'How many days is your trip?',
+        '#type' => 'textfield',
+        '#description' => t('How many days is your trip?'),
+      );
+      $form['budget'] = array(
+        '#title' => 'What is your budget?',
+        '#type' => 'select',
+        '#options' => array(
+            1 => '$',
+            2 => '$$',
+            3 => '$$$',
+            4 => '$$$$',
+        ),
+        '#description' => t('What is your budget?'),
+      );
+      $form['travel'] = array(
+        '#title' => 'How do you like to get around town?',
+        '#type' => 'select',
+        '#options' => array(
+            'foot' => 'On foot',
+            'car' => 'By car',
+            'transport' => 'Using public transport',
+            'all' => 'All of these options',
+        ),
+        '#description' => t('How do you like to get around town?'),
       );
       $form['submit'] = array(
         '#type' => 'submit',
@@ -68,8 +105,16 @@
     function travel_form_submit($form, &$form_state) {
     $city = $form_state['values']['city'];
     $attraction = $form_state['values']['attraction'];
+    $active = $form_state['values']['active'];
+    $budget = $form_state['values']['budget'];
+    $days = $form_state['values']['days'];
+    $travel = $form_state['values']['travel'];
     $_SESSION['city'] = $city;
     $_SESSION['attraction'] = $attraction;
+    $_SESSION['budget'] = $budget;
+    $_SESSION['days'] = $days;
+    $_SESSION['active'] = $active;
+    $_SESSION['travel'] = $travel;
 
     $form_state['redirect'] = 'travel_results';
     }
@@ -78,9 +123,13 @@
     function travel_search() {
       $output = '';
       $rating = '';
+      //maps key
+      $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
+      //places key
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
       $attraction = $_SESSION['attraction'];
 
+      // form validation
       if(str_word_count($attraction) > 1) {
         $attraction = preg_replace('/\s+/', '', $attraction);
       }else {
@@ -93,9 +142,17 @@
       }else {
         $city = $city;
       }
+      //google places api call
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
+
+      //maps call
+      $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY&key='.$maps_key;
+      $maps_result_string = file_get_contents($maps_call);
+      $maps_result_array = json_decode($maps_result_string, TRUE);
+      var_dump($maps_results_array);
+
       if(empty($result_array['results'])) {
         $output = "Sorry no results";
       } else {
@@ -125,15 +182,9 @@ EOD;
 
     function save_view() {
       $id = $_SESSION['id'];
-      var_dump('id');
-      var_dump($id);
       $value = $_SESSION['value'];
-      var_dump('value');
-      var_dump($value);
       if ($id[1] === "1"); {
-        var_dump("if triggered");
         $output = $_SESSION['output'.$value];
       }
-
       return $output;
     }
