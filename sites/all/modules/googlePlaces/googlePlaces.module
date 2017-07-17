@@ -61,14 +61,14 @@
         ),
         '#description' => t('What is your budget?'),
       );
-      $form['travel'] = array(
+      $form['mode'] = array(
         '#title' => 'How do you like to get around town?',
         '#type' => 'select',
         '#options' => array(
-            'foot' => 'On foot',
-            'car' => 'By car',
-            'transport' => 'Using public transport',
-            'all' => 'All of these options',
+            'walking' => 'On foot',
+            'driving' => 'By car',
+            'transit' => 'Using public transport',
+            'all' => 'Any of these options',
         ),
         '#description' => t('How do you like to get around town?'),
       );
@@ -108,13 +108,13 @@
     $active = $form_state['values']['active'];
     $budget = $form_state['values']['budget'];
     $days = $form_state['values']['days'];
-    $travel = $form_state['values']['travel'];
+    $mode = $form_state['values']['mode'];
     $_SESSION['city'] = $city;
     $_SESSION['attraction'] = $attraction;
+    $_SESSION['mode'] = $mode;
     $_SESSION['budget'] = $budget;
     $_SESSION['days'] = $days;
     $_SESSION['active'] = $active;
-    $_SESSION['travel'] = $travel;
 
     $form_state['redirect'] = 'travel_results';
     }
@@ -123,11 +123,14 @@
     function travel_search() {
       $output = '';
       $rating = '';
+      $mode = $_SESSION['mode'];
+      $origin = '';
+      $destintation = '';
+      $attraction = $_SESSION['attraction'];
       //maps key
       $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
       //places key
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
-      $attraction = $_SESSION['attraction'];
 
       // form validation
       if(str_word_count($attraction) > 1) {
@@ -146,12 +149,36 @@
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
-
-      //maps call
-      $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY&key='.$maps_key;
-      $maps_result_string = file_get_contents($maps_call);
-      $maps_result_array = json_decode($maps_result_string, TRUE);
-      var_dump($maps_results_array);
+      for ($i=0; $i < 3 ; $i++) {
+          if($mode === "walking") {
+              $origin = $result_array['results'][$i]['formatted_address'];
+              if(str_word_count($origin) > 1) {
+                $origin = preg_replace('/\s+/', '+', $origin);
+              }else {
+                $origin = $origin;
+              }
+              $destination = $result_array['results'][$i +1]['formatted_address'];
+              if(str_word_count($destination) > 1) {
+                $destination = preg_replace('/\s+/', '+', $destination);
+              }else {
+                $destination = $destination;
+              }
+              //maps call
+              $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
+              $maps_result_string = file_get_contents($maps_call);
+              $maps_result_array = json_decode($maps_result_string, TRUE);
+              $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
+              var_dump($distance);
+              $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
+              $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
+              $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
+              if($distance < "5 mi") {
+                  var_dump("true");
+              } else {
+                  var_dump("false");
+              }
+          }
+      }
 
       if(empty($result_array['results'])) {
         $output = "Sorry no results";
@@ -177,6 +204,7 @@ EOD;
          $output .= drupal_render($checkbox_output);
         }
       }
+
       return $output;
     }
 
