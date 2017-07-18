@@ -1,41 +1,43 @@
 <?php
-    function googlePlaces_menu() {
-      $items = array();
-      $items['travel_options'] = array(
+    function googlePlaces_menu()
+    {
+        $items = array();
+        $items['travel_options'] = array(
       'title' => 'Search Attractions',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('travel_form'),
-      'access callback' => TRUE,
+      'access callback' => true,
       'type' => MENU_NORMAL_ITEM,
       );
-      $items['travel_results'] = array(
+        $items['travel_results'] = array(
       'title' => 'Results',
       'page callback' => 'travel_search',
-      'access callback' => TRUE,
+      'access callback' => true,
       'type' => MENU_CALLBACK,
       );
-      $items['save_results'] = array(
+        $items['save_results'] = array(
       'title' => 'My Results',
       'page callback' => 'save_view',
-      'access callback' => TRUE,
+      'access callback' => true,
       'type' => MENU_CALLBACK,
       );
-      return $items;
+        return $items;
     }
 
-    function travel_form() {
-      $form['attraction'] = array(
+    function travel_form()
+    {
+        $form['attraction'] = array(
         '#title' => 'What do you like to do for fun?',
         '#type' => 'textfield',
         '#description' => t('What do you like to do for fun?'),
-        '#required' => TRUE,
+        '#required' => true,
       );
-      $form['city'] = array(
+        $form['city'] = array(
         '#title' => 'What city are you visting?',
         '#type' => 'textfield',
         '#description' => t('Please enter a city'),
       );
-      $form['active'] = array(
+        $form['active'] = array(
         '#title' => 'How active do you like to be on vacation?',
         '#type' => 'select',
         '#options' => array(
@@ -45,12 +47,12 @@
         ),
         '#description' => t('How active do you like to be on vacation?'),
       );
-      $form['days'] = array(
+        $form['days'] = array(
         '#title' => 'How many days is your trip?',
         '#type' => 'textfield',
         '#description' => t('How many days is your trip?'),
       );
-      $form['budget'] = array(
+        $form['budget'] = array(
         '#title' => 'What is your budget?',
         '#type' => 'select',
         '#options' => array(
@@ -61,7 +63,7 @@
         ),
         '#description' => t('What is your budget?'),
       );
-      $form['mode'] = array(
+        $form['mode'] = array(
         '#title' => 'How do you like to get around town?',
         '#type' => 'select',
         '#options' => array(
@@ -72,16 +74,17 @@
         ),
         '#description' => t('How do you like to get around town?'),
       );
-      $form['submit'] = array(
+        $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Search',
       );
 
-      return $form;
+        return $form;
     }
 
-    function checkbox_form() {
-      $form['save'] = array(
+    function checkbox_form()
+    {
+        $form['save'] = array(
         '#title' => '',
         '#type' => 'checkboxes',
         '#options' => array(
@@ -89,134 +92,154 @@
         ),
         '#description' => t('Check to save'),
       );
-      $form['submit'] = array(
+        $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Save',
       );
-      return $form;
+        return $form;
     }
 
-    function checkbox_form_submit($form, &$form_state) {
-     $id = $form_state['values']['save'];
-     $_SESSION['id'] = $id;
-     $form_state['redirect'] = 'save_results';
+    function checkbox_form_submit($form, &$form_state)
+    {
+        $id = $form_state['values']['save'];
+        $_SESSION['id'] = $id;
+        $form_state['redirect'] = 'save_results';
     }
 
-    function travel_form_submit($form, &$form_state) {
-    $city = $form_state['values']['city'];
-    $attraction = $form_state['values']['attraction'];
-    $active = $form_state['values']['active'];
-    $budget = $form_state['values']['budget'];
-    $days = $form_state['values']['days'];
-    $mode = $form_state['values']['mode'];
-    $_SESSION['city'] = $city;
-    $_SESSION['attraction'] = $attraction;
-    $_SESSION['mode'] = $mode;
-    $_SESSION['budget'] = $budget;
-    $_SESSION['days'] = $days;
-    $_SESSION['active'] = $active;
+    function travel_form_submit($form, &$form_state)
+    {
+        $city = $form_state['values']['city'];
+        $attraction = $form_state['values']['attraction'];
+        $active = $form_state['values']['active'];
+        $budget = $form_state['values']['budget'];
+        $days = $form_state['values']['days'];
+        $mode = $form_state['values']['mode'];
+        $_SESSION['city'] = $city;
+        $_SESSION['attraction'] = $attraction;
+        $_SESSION['mode'] = $mode;
+        $_SESSION['budget'] = $budget;
+        $_SESSION['days'] = $days;
+        $_SESSION['active'] = $active;
 
-    $form_state['redirect'] = 'travel_results';
+        $form_state['redirect'] = 'travel_results';
     }
 
 
-    function travel_search() {
-      $active = $_SESSION['active'];
-      $activities = array();
-      $attraction = $_SESSION['attraction'];
-      //places key
-      $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
-      $days = $_SESSION['days'];
-      $destintation = '';
-      //maps key
-      $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
-      $mode = $_SESSION['mode'];
-      $origin = '';
-      $output = '';
-      $rating = '';
+    function travel_search()
+    {
+        $active = $_SESSION['active'];
+        $activities = array();
+        $attraction = $_SESSION['attraction'];
+        //places key
+        $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
+        //   $days = $_SESSION['days'];
+        $days = array(1,2,3,4);
+        $destintation = '';
+        //maps key
+        $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
+        $mode = $_SESSION['mode'];
+        $number_of_activities = 0;
+        $origin = '';
+        $output = '';
+        $rating = '';
 
-      // form validation
-      if(str_word_count($attraction) > 1) {
-        $attraction = preg_replace('/\s+/', '', $attraction);
-      }else {
-        $attraction = $attraction;
-      }
+        // form validation
+        if (str_word_count($attraction) > 1) {
+            $attraction = preg_replace('/\s+/', '', $attraction);
+        } else {
+            $attraction = $attraction;
+        }
 
-      $city = $_SESSION['city'];
-      if(str_word_count($city) > 1) {
-        $city = preg_replace('/\s+/', '', $city);
-      }else {
-        $city = $city;
-      }
-      //google places api call
-      $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
-      $result_string = file_get_contents($api_call);
-      $result_array = json_decode($result_string, TRUE);
-      for ($i=0; $i < $days ; $i++) {
-          if($active === "active") {
-              for ($i=0; $i < 3 ; $i++) {
-                  if($mode === "walking") {
-                      $origin = $result_array['results'][$i]['formatted_address'];
-                      if(str_word_count($origin) > 1) {
-                          $origin = preg_replace('/\s+/', '+', $origin);
-                      }else {
-                          $origin = $origin;
-                      }
-                      $destination = $result_array['results'][$i +1]['formatted_address'];
-                      if(str_word_count($destination) > 1) {
-                          $destination = preg_replace('/\s+/', '+', $destination);
-                      }else {
-                          $destination = $destination;
-                      }
-                      //maps call
-                      $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
-                      $maps_result_string = file_get_contents($maps_call);
-                      $maps_result_array = json_decode($maps_result_string, TRUE);
-                      $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
-                      $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
-                      if($mode === "transit") {
-                          $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
-                          $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
-                      }
-                      if($distance < "5 mi") {
-                          array_push($activities, $i);
-                          for ($i=0; $i < count($activities); $i++) {
-                              $address = $result_array['results'][$i]['formatted_address'];
-                              $name = $result_array['results'][$i]['name'];
-                              $value = $i;
-                              $_SESSION['output'.$i] = $name . $address . $rating;
-                              $place_id = $result_array['results'][$i]['place_id'];
-                              if(empty($result_array['results'][$i]['rating'])) {
-                                  $rating = "Sorry no rating";
-                              }else {
-                                  $rating = (string)$result_array['results'][$i]['rating'];
-                              }
-                              $_SESSION['value'] = $value;
-                              $output = $output.<<<EOD
-                              <div class="well">
-                              <h1>Intenary for day $i</h1>
-                              <h2>$name</h2>
-                              <h4>Address: $address </h4>
-                              <h4>Rating: $rating </h4>
-                              </div>
+        $city = $_SESSION['city'];
+        if (str_word_count($city) > 1) {
+            $city = preg_replace('/\s+/', '', $city);
+        } else {
+            $city = $city;
+        }
+        //google places api call
+        $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
+        $result_string = file_get_contents($api_call);
+        $result_array = json_decode($result_string, true);
+        foreach ($days as $day) {
+            $output = $output.<<<EOD
+          <div class=well>
+          <h1>Itinerary for day $day</h1>
 EOD;
-                              $checkbox_output = drupal_get_form('checkbox_form');
-                              $output .= drupal_render($checkbox_output);
-                              }
-                          }
-
-                      }
-                  }
-              }
-          }
-      return $output;
+        }
+        //determine number of daily activities
+        if ($active === "active") {
+            $number_of_activities = 3;
+        } elseif ($active === "middle") {
+            $number_of_activities = 2;
+        } else {
+            $number_of_activities = 1;
+        }
+        //check distance between attractions
+        for ($i=0; $i < count($result_array) ; $i++) {
+            $origin = $result_array['results'][$i]['formatted_address'];
+            if (str_word_count($origin) > 1) {
+                $origin = preg_replace('/\s+/', '+', $origin);
+            } else {
+                $origin = $origin;
+            }
+            $destination = $result_array['results'][$i +1]['formatted_address'];
+            if (str_word_count($destination) > 1) {
+                $destination = preg_replace('/\s+/', '+', $destination);
+            } else {
+                $destination = $destination;
+            }
+            //maps call
+            $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
+            $maps_result_string = file_get_contents($maps_call);
+            $maps_result_array = json_decode($maps_result_string, true);
+            $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
+            $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
+            if ($distance < "5 mi") {
+                array_push($activities, $i);
+            }
+        }
+        if ($mode === "walking") {
+            var_dump($activities);
+            $activities = array_chunk($activities, $number_of_activities);
+        }
+        if ($mode === "transit" || $mode === "all") {
+            $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
+            $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
+        }
+        foreach ($activities as $activity) {
+            $address = $result_array['results'][$activity]['formatted_address'];
+            $name = $result_array['results'][$activity]['name'];
+            // $value = $activity;
+            $_SESSION['output'.$activity] = $name . $address . $rating;
+            $place_id = $result_array['results'][$activity]['place_id'];
+            if (empty($result_array['results'][$activity]['rating'])) {
+                $rating = "Sorry no rating";
+            } else {
+                $rating = (string)$result_array['results'][$activity]['rating'];
+            }
+            // $_SESSION['value'] = $value;
+            $output = $output.<<<EOD
+           <h2>Attraction 1</h2>
+           <h2>$name</h2>
+           <h4>Address: $address </h4>
+           <h4>Rating: $rating </h4>
+           <h4>Distance by $mode to attraction 2: $distance</h4>
+           <h4>Duration by $mode to attraction 2: $duration</h4>
+           </div>
+EOD;
+            $checkbox_output = drupal_get_form('checkbox_form');
+            $output .= drupal_render($checkbox_output);
+        }
+        return $output;
     }
 
-    function save_view() {
-      $id = $_SESSION['id'];
-      $value = $_SESSION['value'];
-      if ($id[1] === "1"); {
+    function save_view()
+    {
+        $id = $_SESSION['id'];
+        $value = $_SESSION['value'];
+        if ($id[1] === "1");
+        {
         $output = $_SESSION['output'.$value];
       }
-      return $output;
+        return $output;
     }
