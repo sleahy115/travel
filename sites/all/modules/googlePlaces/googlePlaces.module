@@ -121,16 +121,19 @@
 
 
     function travel_search() {
-      $output = '';
-      $rating = '';
-      $mode = $_SESSION['mode'];
-      $origin = '';
-      $destintation = '';
+      $active = $_SESSION['active'];
+      $activities = array();
       $attraction = $_SESSION['attraction'];
-      //maps key
-      $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
       //places key
       $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
+      $days = $_SESSION['days'];
+      $destintation = '';
+      //maps key
+      $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
+      $mode = $_SESSION['mode'];
+      $origin = '';
+      $output = '';
+      $rating = '';
 
       // form validation
       if(str_word_count($attraction) > 1) {
@@ -149,62 +152,63 @@
       $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
       $result_string = file_get_contents($api_call);
       $result_array = json_decode($result_string, TRUE);
-      for ($i=0; $i < 3 ; $i++) {
-          if($mode === "walking") {
-              $origin = $result_array['results'][$i]['formatted_address'];
-              if(str_word_count($origin) > 1) {
-                $origin = preg_replace('/\s+/', '+', $origin);
-              }else {
-                $origin = $origin;
-              }
-              $destination = $result_array['results'][$i +1]['formatted_address'];
-              if(str_word_count($destination) > 1) {
-                $destination = preg_replace('/\s+/', '+', $destination);
-              }else {
-                $destination = $destination;
-              }
-              //maps call
-              $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
-              $maps_result_string = file_get_contents($maps_call);
-              $maps_result_array = json_decode($maps_result_string, TRUE);
-              $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
-              var_dump($distance);
-              $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
-              $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
-              $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
-              if($distance < "5 mi") {
-                  var_dump("true");
-              } else {
-                  var_dump("false");
-              }
-          }
-      }
-
-      if(empty($result_array['results'])) {
-        $output = "Sorry no results";
-      } else {
-        for ($i=0; $i < count($result_array['results']); $i++) {
-        $address = $result_array['results'][$i]['formatted_address'];
-        $name = $result_array['results'][$i]['name'];
-        $value = $i;
-        $_SESSION['output'.$i] = $name . $address . $rating;
-        $place_id = $result_array['results'][$i]['place_id'];
-          if(empty($result_array['results'][$i]['rating'])) {
-            $rating = "Sorry no rating";
-          }else {
-            $rating = (string)$result_array['results'][$i]['rating'];
-          }
-        $_SESSION['value'] = $value;
-        $output = $output.<<<EOD
-        <h2>$name</h2>
-        <h4>Address: $address </h4>
-        <h4>Rating: $rating </h4>
+      for ($i=0; $i < $days ; $i++) {
+          if($active === "active") {
+              for ($i=0; $i < 3 ; $i++) {
+                  if($mode === "walking") {
+                      $origin = $result_array['results'][$i]['formatted_address'];
+                      if(str_word_count($origin) > 1) {
+                          $origin = preg_replace('/\s+/', '+', $origin);
+                      }else {
+                          $origin = $origin;
+                      }
+                      $destination = $result_array['results'][$i +1]['formatted_address'];
+                      if(str_word_count($destination) > 1) {
+                          $destination = preg_replace('/\s+/', '+', $destination);
+                      }else {
+                          $destination = $destination;
+                      }
+                      //maps call
+                      $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
+                      $maps_result_string = file_get_contents($maps_call);
+                      $maps_result_array = json_decode($maps_result_string, TRUE);
+                      $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
+                      $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
+                      if($mode === "transit") {
+                          $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
+                          $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
+                      }
+                      if($distance < "5 mi") {
+                          array_push($activities, $i);
+                          for ($i=0; $i < count($activities); $i++) {
+                              $address = $result_array['results'][$i]['formatted_address'];
+                              $name = $result_array['results'][$i]['name'];
+                              $value = $i;
+                              $_SESSION['output'.$i] = $name . $address . $rating;
+                              $place_id = $result_array['results'][$i]['place_id'];
+                              if(empty($result_array['results'][$i]['rating'])) {
+                                  $rating = "Sorry no rating";
+                              }else {
+                                  $rating = (string)$result_array['results'][$i]['rating'];
+                              }
+                              $_SESSION['value'] = $value;
+                              $output = $output.<<<EOD
+                              <div class="well">
+                              <h1>Intenary for day $i</h1>
+                              <h2>$name</h2>
+                              <h4>Address: $address </h4>
+                              <h4>Rating: $rating </h4>
+                              </div>
 EOD;
-         $checkbox_output = drupal_get_form('checkbox_form');
-         $output .= drupal_render($checkbox_output);
-        }
-      }
+                              $checkbox_output = drupal_get_form('checkbox_form');
+                              $output .= drupal_render($checkbox_output);
+                              }
+                          }
 
+                      }
+                  }
+              }
+          }
       return $output;
     }
 
