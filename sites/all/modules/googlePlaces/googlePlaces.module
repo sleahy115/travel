@@ -197,7 +197,7 @@
             }
         }
         foreach ($days as $day) {
-            $output = $output.<<<EOD
+            $day_pane = $day_pane.<<<EOD
           <div class=well>
           <h1>Itinerary for day $day</h1>
 EOD;
@@ -210,7 +210,7 @@ EOD;
                 $address = $result_array['results'][$i]['formatted_address'];
                 $name = $result_array['results'][$i]['name'];
                 $value = $i;
-                $_SESSION['output'.$i] = $name . $address . $rating;
+                // $_SESSION['output'.$i] = $name . $address . $rating;
                 $place_id = $result_array['results'][$i]['place_id'];
                 if (empty($result_array['results'][$i]['rating'])) {
                     $rating = "Sorry no rating";
@@ -218,7 +218,7 @@ EOD;
                     $rating = (string)$result_array['results'][$i]['rating'];
                 }
             }
-            $_SESSION['value'] = $value;
+            // $_SESSION['value'] = $value;
             $output = $output.<<<EOD
             <h2>Attraction $i</h2>
             <h2>$name</h2>
@@ -230,7 +230,7 @@ EOD;
 EOD;
         }
         $checkbox_output = drupal_get_form('checkbox_form');
-        $output .= drupal_render($checkbox_output);
+        $day_pane.=$output .= drupal_render($checkbox_output);
         return $output;
     }
 
