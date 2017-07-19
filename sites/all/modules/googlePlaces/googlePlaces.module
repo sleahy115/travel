@@ -160,12 +160,6 @@
         $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
         $result_string = file_get_contents($api_call);
         $result_array = json_decode($result_string, true);
-        foreach ($days as $day) {
-            $output = $output.<<<EOD
-          <div class=well>
-          <h1>Itinerary for day $day</h1>
-EOD;
-        }
         //determine number of daily activities
         if ($active === "active") {
             $number_of_activities = 3;
@@ -194,42 +188,49 @@ EOD;
             $maps_result_array = json_decode($maps_result_string, true);
             $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
             $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
-            if ($distance < "5 mi") {
+            if ($mode === "walking" && $distance < "5 mi") {
+                array_push($activities, $i);
+            } elseif ($mode === "transit" && $distance < "15 mi") {
+                array_push($activities, $i);
+            } elseif ($distance < "30 mi") {
                 array_push($activities, $i);
             }
         }
-        if ($mode === "walking") {
-            var_dump($activities);
-            $activities = array_chunk($activities, $number_of_activities);
-        }
-        if ($mode === "transit" || $mode === "all") {
-            $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
-            $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
-        }
-        foreach ($activities as $activity) {
-            $address = $result_array['results'][$activity]['formatted_address'];
-            $name = $result_array['results'][$activity]['name'];
-            // $value = $activity;
-            $_SESSION['output'.$activity] = $name . $address . $rating;
-            $place_id = $result_array['results'][$activity]['place_id'];
-            if (empty($result_array['results'][$activity]['rating'])) {
-                $rating = "Sorry no rating";
-            } else {
-                $rating = (string)$result_array['results'][$activity]['rating'];
-            }
-            // $_SESSION['value'] = $value;
+        foreach ($days as $day) {
             $output = $output.<<<EOD
-           <h2>Attraction 1</h2>
-           <h2>$name</h2>
-           <h4>Address: $address </h4>
-           <h4>Rating: $rating </h4>
-           <h4>Distance by $mode to attraction 2: $distance</h4>
-           <h4>Duration by $mode to attraction 2: $duration</h4>
-           </div>
+          <div class=well>
+          <h1>Itinerary for day $day</h1>
 EOD;
-            $checkbox_output = drupal_get_form('checkbox_form');
-            $output .= drupal_render($checkbox_output);
+            $activities = array_chunk($activities, $number_of_activities);
+            if ($mode === "transit" || $mode === "all") {
+                $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
+                $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
+            }
+            for ($i=0; $i < $activities ; $i++) {
+                $address = $result_array['results'][$i]['formatted_address'];
+                $name = $result_array['results'][$i]['name'];
+                $value = $i;
+                $_SESSION['output'.$i] = $name . $address . $rating;
+                $place_id = $result_array['results'][$i]['place_id'];
+                if (empty($result_array['results'][$i]['rating'])) {
+                    $rating = "Sorry no rating";
+                } else {
+                    $rating = (string)$result_array['results'][$i]['rating'];
+                }
+            }
+            $_SESSION['value'] = $value;
+            $output = $output.<<<EOD
+            <h2>Attraction $i</h2>
+            <h2>$name</h2>
+            <h4>Address: $address </h4>
+            <h4>Rating: $rating </h4>
+            <h4>Distance by $mode to attraction : $distance</h4>
+            <h4>Duration by $mode to attraction : $duration</h4>
+            </div>
+EOD;
         }
+        $checkbox_output = drupal_get_form('checkbox_form');
+        $output .= drupal_render($checkbox_output);
         return $output;
     }
 
