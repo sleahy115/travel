@@ -136,6 +136,7 @@
         //   $days = $_SESSION['days'];
         $days = $_SESSION['days'];
         $destintation = '';
+        $distance_array = array();
         //maps key
         $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
         $mode = $_SESSION['mode'];
@@ -194,14 +195,18 @@
             $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
             $maps_result_string = file_get_contents($maps_call);
             $maps_result_array = json_decode($maps_result_string, true);
+            var_dump($maps_result_array['rows'][0]['elements'][0]['distance']['text']);
             $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
             $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
             if ($mode === "walking" && $distance < "5 mi") {
                 array_push($activities, $i);
+                array_push($distance_array, $distance);
             } elseif ($mode === "transit" && $distance < "15 mi") {
                 array_push($activities, $i);
+                array_push($distance_array, $distance);
             } elseif ($distance < "30 mi") {
                 array_push($activities, $i);
+                array_push($distance_array, $distance);
             }
         }
         foreach ($days as $day) {
@@ -231,8 +236,7 @@ EOD;
             <h2>$name</h2>
             <h4>Address: $address </h4>
             <h4>Rating: $rating </h4>
-            <h4>$mode distance to next stop : $distance</h4>
-            <h4>$mode duration to next stop : $duration</h4>
+            <h4>$mode distance to next stop : $distance_array[$activity]</h4>
 EOD;
             }
             $output.= '</div>';
@@ -246,9 +250,8 @@ EOD;
     {
         $id = $_SESSION['id'];
         $value = $_SESSION['value'];
-        if ($id[1] === "1");
-        {
-        $output = $_SESSION['output'.$value];
-      }
+        if ($id[1] === "1") {
+            $output = $_SESSION['output'.$value];
+        }
         return $output;
     }
