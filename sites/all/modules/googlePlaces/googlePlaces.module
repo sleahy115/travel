@@ -135,6 +135,7 @@
         //   $days = $_SESSION['days'];
         $days = array(1,2,3,4);
         $destintation = '';
+        $j = 0;
         //maps key
         $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
         $mode = $_SESSION['mode'];
@@ -197,7 +198,8 @@
             }
         }
         foreach ($days as $day) {
-            $activities = array_chunk($activities, $number_of_activities++);
+            $j = $j + 1;
+            $activities = array_slice($activities, $j, $number_of_activities);
             $output = $output.<<<EOD
             <div class=well>
             <h1>Itinerary for day $day</h1>
@@ -206,25 +208,26 @@ EOD;
                 $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
                 $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
             }
-            for ($i=1; $i < $number_of_activities ; $i++) {
-                $address = $result_array['results'][$i]['formatted_address'];
-                $name = $result_array['results'][$i]['name'];
+            foreach ($activities as $activity) {
+                // for ($i=1; $i < $number_of_activities ; $i++) {
+                $address = $result_array['results'][$activity]['formatted_address'];
+                $name = $result_array['results'][$activity]['name'];
                 // $value = $i;
                 $_SESSION['output'.$i] = $name . $address . $rating;
-                $place_id = $result_array['results'][$i]['place_id'];
-                if (empty($result_array['results'][$i]['rating'])) {
+                $place_id = $result_array['results'][$activity]['place_id'];
+                if (empty($result_array['results'][$activity]['rating'])) {
                     $rating = "Sorry no rating";
                 } else {
-                    $rating = (string)$result_array['results'][$i]['rating'];
+                    $rating = (string)$result_array['results'][$activity]['rating'];
                 }
                 // $_SESSION['value'] = $value;
                 $output = $output.<<<EOD
-            <h2>Attraction $i</h2>
+            <h2>Attraction $activity</h2>
             <h2>$name</h2>
             <h4>Address: $address </h4>
             <h4>Rating: $rating </h4>
-            <h4>Distance by $mode to attraction : $distance</h4>
-            <h4>Duration by $mode to attraction : $duration</h4>
+            <h4>$mode distance to attraction : $distance</h4>
+            <h4>$mode duration to attraction : $duration</h4>
 EOD;
             }
             $output.= '</div>';
