@@ -129,13 +129,13 @@
     {
         $active = $_SESSION['active'];
         $activities = array();
+        $array_offset = 0;
         $attraction = $_SESSION['attraction'];
         //places key
         $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
         //   $days = $_SESSION['days'];
-        $days = array(1,2,3,4);
+        $days = $_SESSION['days'];
         $destintation = '';
-        $j = 0;
         //maps key
         $maps_key = 'AIzaSyBU9Qh-CcMbmwS_OLHtjyLPXb4Da_xitMk';
         $mode = $_SESSION['mode'];
@@ -143,6 +143,13 @@
         $origin = '';
         $output = '';
         $rating = '';
+
+        //convert days to array
+        $days_array = array();
+        for ($i=1; $i <= $days ; $i++) {
+            array_push($days_array, $i);
+        }
+        $days = $days_array;
 
         // form validation
         if (str_word_count($attraction) > 1) {
@@ -170,7 +177,7 @@
             $number_of_activities = 1;
         }
         //check distance between attractions
-        for ($i=0; $i < count($result_array) ; $i++) {
+        for ($i=0; $i < count($result_array['results'])-1; $i++) {
             $origin = $result_array['results'][$i]['formatted_address'];
             if (str_word_count($origin) > 1) {
                 $origin = preg_replace('/\s+/', '+', $origin);
@@ -198,18 +205,17 @@
             }
         }
         foreach ($days as $day) {
-            $j = $j + 1;
-            $activities = array_slice($activities, $j, $number_of_activities);
+            $activity_slice = array_slice($activities, $array_offset, $number_of_activities);
+            $array_offset = $array_offset +3;
             $output = $output.<<<EOD
             <div class=well>
             <h1>Itinerary for day $day</h1>
 EOD;
-            if ($mode === "transit" || $mode === "all") {
-                $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
-                $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
-            }
-            foreach ($activities as $activity) {
-                // for ($i=1; $i < $number_of_activities ; $i++) {
+            // if ($mode === "transit" || $mode === "all") {
+            //     $fare_currency = $maps_result_array['rows'][0]['elements'][0]['fare']['currency'];
+            //     $fare_amount = $maps_result_array['rows'][0]['elements'][0]['fare']['text'];
+            // }
+            foreach ($activity_slice as $activity) {
                 $address = $result_array['results'][$activity]['formatted_address'];
                 $name = $result_array['results'][$activity]['name'];
                 // $value = $i;
@@ -222,12 +228,11 @@ EOD;
                 }
                 // $_SESSION['value'] = $value;
                 $output = $output.<<<EOD
-            <h2>Attraction $activity</h2>
             <h2>$name</h2>
             <h4>Address: $address </h4>
             <h4>Rating: $rating </h4>
-            <h4>$mode distance to attraction : $distance</h4>
-            <h4>$mode duration to attraction : $duration</h4>
+            <h4>$mode distance to next stop : $distance</h4>
+            <h4>$mode duration to next stop : $duration</h4>
 EOD;
             }
             $output.= '</div>';
