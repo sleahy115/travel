@@ -26,12 +26,24 @@
 
     function travel_form()
     {
-        $form['attraction'] = array(
+        $form['attraction1'] = array(
         '#title' => 'What do you like to do for fun?',
         '#type' => 'textfield',
         '#description' => t('What do you like to do for fun?'),
         '#required' => true,
       );
+        $form['attraction2'] = array(
+        '#title' => 'What do you like to do for fun?',
+        '#type' => 'textfield',
+        '#description' => t('List another activity you enjoy'),
+        '#required' => true,
+      );
+        $form['attraction3'] = array(
+        '#title' => 'What do you like to do for fun?',
+        '#type' => 'textfield',
+        '#description' => t('List another activity you enjoy'),
+        '#required' => true,
+        );
         $form['city'] = array(
         '#title' => 'What city are you visting?',
         '#type' => 'textfield',
@@ -108,18 +120,22 @@
 
     function travel_form_submit($form, &$form_state)
     {
-        $city = $form_state['values']['city'];
-        $attraction = $form_state['values']['attraction'];
         $active = $form_state['values']['active'];
+        $attraction1 = $form_state['values']['attraction1'];
+        $attraction2 = $form_state['values']['attraction2'];
+        $attraction3 = $form_state['values']['attraction3'];
         $budget = $form_state['values']['budget'];
+        $city = $form_state['values']['city'];
         $days = $form_state['values']['days'];
         $mode = $form_state['values']['mode'];
-        $_SESSION['city'] = $city;
-        $_SESSION['attraction'] = $attraction;
-        $_SESSION['mode'] = $mode;
-        $_SESSION['budget'] = $budget;
-        $_SESSION['days'] = $days;
         $_SESSION['active'] = $active;
+        $_SESSION['attraction1'] = $attraction1;
+        $_SESSION['attraction2'] = $attraction2;
+        $_SESSION['attraction3'] = $attraction3;
+        $_SESSION['budget'] = $budget;
+        $_SESSION['city'] = $city;
+        $_SESSION['days'] = $days;
+        $_SESSION['mode'] = $mode;
 
         $form_state['redirect'] = 'travel_results';
     }
@@ -130,7 +146,7 @@
         $active = $_SESSION['active'];
         $activities = array();
         $array_offset = 0;
-        $attraction = $_SESSION['attraction'];
+        $attractions = array();
         //places key
         $api_key = 'AIzaSyAOy8TYrUjMoRdW9-PIVi-50GnmGe_CDi8';
         //   $days = $_SESSION['days'];
@@ -144,6 +160,13 @@
         $origin = '';
         $output = '';
         $rating = '';
+        $result_array = array();
+        $result_string = '';
+
+        //push attractions to array
+        array_push($attractions, $attraction1 = $_SESSION['attraction1']);
+        array_push($attractions, $attraction2 = $_SESSION['attraction2']);
+        array_push($attractions, $attraction3 = $_SESSION['attraction3']);
 
         //convert days to array
         $days_array = array();
@@ -153,10 +176,13 @@
         $days = $days_array;
 
         // form validation
-        if (str_word_count($attraction) > 1) {
-            $attraction = preg_replace('/\s+/', '', $attraction);
-        } else {
-            $attraction = $attraction;
+        foreach ($attractions as $attraction) {
+            if (str_word_count($attraction) > 1) {
+                $attraction = preg_replace('/\s+/', '', $attraction);
+                array_push($attractions, $attraction);
+            } else {
+                array_push($attractions, $attraction);
+            }
         }
 
         $city = $_SESSION['city'];
@@ -166,8 +192,13 @@
             $city = $city;
         }
         //google places api call
-        $api_call ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
-        $result_string = file_get_contents($api_call);
+        foreach ($attractions as $attraction) {
+            $api_call
+             ='https://maps.googleapis.com/maps/api/place/textsearch/json?query='.$attraction.'+in+'.$city.'&key='.$api_key;
+            $result_strings = file_get_contents($api_call);
+            $result_string .= $result_strings;
+        }
+        var_dump($result_array);
         $result_array = json_decode($result_string, true);
         //determine number of daily activities
         if ($active === "active") {
@@ -195,7 +226,6 @@
             $maps_call = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='. $origin.'&destinations='.$destination.'&mode='.$mode.'&key='.$maps_key;
             $maps_result_string = file_get_contents($maps_call);
             $maps_result_array = json_decode($maps_result_string, true);
-            var_dump($maps_result_array['rows'][0]['elements'][0]['distance']['text']);
             $distance = $maps_result_array['rows'][0]['elements'][0]['distance']['text'];
             $duration = $maps_result_array['rows'][0]['elements'][0]['duration']['text'];
             if ($mode === "walking" && $distance < "5 mi") {
