@@ -198,8 +198,8 @@
             $result_strings = file_get_contents($api_call);
             $result_string .= $result_strings;
         }
-        var_dump($result_array);
         $result_array = json_decode($result_string, true);
+        var_dump(json_last_error());
         //determine number of daily activities
         if ($active === "active") {
             $number_of_activities = 3;
