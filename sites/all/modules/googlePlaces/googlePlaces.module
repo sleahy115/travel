@@ -1,3 +1,4 @@
+
 <?php
    function googlePlaces_menu()
    {
@@ -272,4 +273,8 @@ EOD;
                        }
                    }
                }
-  
+               $output.= '</div>';
+           }
+       }
+       return $output;
+   }
